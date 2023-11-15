@@ -1,0 +1,10 @@
+dgs:
+  graphql:
+    path: /core/graphql
+    graphiql:
+      path: /core/graphiql
+      enabled: false
+    schema-json:
+      enabled: false
+      path: /core/schema.json
+    schema-locations: classpath*:graphql/**/*.graphql*

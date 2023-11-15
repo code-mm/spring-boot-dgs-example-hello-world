@@ -1,0 +1,82 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.1.5'
+    id 'io.spring.dependency-management' version '1.1.3'
+    id "com.netflix.dgs.codegen" version "6.0.3"
+}
+
+group = 'com.example'
+version = '0.0.1-SNAPSHOT'
+
+java {
+    sourceCompatibility = '17'
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+dependencyManagement {
+    imports {
+        //https://github.com/Netflix/dgs-framework
+        mavenBom("com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:8.0.2")
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+    // https://github.com/netflix/dgs-framework/
+    implementation 'com.netflix.graphql.dgs:graphql-dgs-spring-boot-starter'
+    implementation('com.netflix.graphql.dgs:graphql-dgs-webflux-starter')
+    implementation('com.netflix.graphql.dgs:graphql-dgs-extended-scalars')
+
+}
+
+tasks.named('bootBuildImage') {
+    builder = 'paketobuildpacks/builder-jammy-base:latest'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
+
+generateJava {
+    schemaPaths = ["${projectDir}/src/main/resources/graphql/schema"]
+    packageName = 'com.my.app.graphql.gen'
+    language = 'java'
+    typeMapping = [
+            DateTime     : "java.time.OffsetDateTime",
+            Date         : "java.time.LocalDate",
+            Time         : "java.time.OffsetTime",
+            URI          : "java.net.URI",
+            Object       : "java.lang.Object",
+            Url          : "java.lang.String",
+            PositiveFloat: "java.lang.Float",
+            PhoneNumber  : "java.lang.String",
+            Email        : "java.lang.String",
+            ID           : "java.lang.String",
+            Text         : "java.lang.String",
+            JSON         : "java.lang.Object",
+            Html         : "java.lang.String",
+            BigDecimal   : "java.math.BigDecimal",
+            Int64        : "java.lang.Long"
+
+    ]
+    // 生成客户端操作代码
+    generateClientv2 = true
+    // 生成数据模型
+    generateDataTypes = true
+}
+
+compileJava.dependsOn "generateJava"

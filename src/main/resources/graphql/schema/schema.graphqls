@@ -1,0 +1,13 @@
+type Query {
+    """
+    用户服务
+    """
+    getGCUserService:GCUserService!
+}
+
+type GCUserService{
+    """
+    服务名称
+    """
+    name:String
+}
